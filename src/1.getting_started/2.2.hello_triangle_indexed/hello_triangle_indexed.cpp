@@ -156,7 +156,7 @@ int main() {
 
   // 解绑定EBO
   // 不注释这行代码会以线框模式绘制
-  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   // 实现简单的游戏循环
   while (!glfwWindowShouldClose(window)) {   // 要求被退出时函数返回True
     // 是否触发事件
