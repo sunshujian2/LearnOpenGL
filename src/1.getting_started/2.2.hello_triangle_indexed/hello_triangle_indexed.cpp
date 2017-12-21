@@ -173,7 +173,7 @@ int main() {
     glBindVertexArray(VAO);
     // glDrawArrays(GL_TRIANGLE, 0, 6);
     // 从索引缓冲渲染
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0)；
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 
     // 交换screen buffer
