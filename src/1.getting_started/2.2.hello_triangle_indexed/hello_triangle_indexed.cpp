@@ -114,14 +114,22 @@ int main() {
   // 设置顶点数据和属性指针
   // 顶点输入
   GLfloat vertices[] = {
-    -0.5f, -0.5f, 0.0f,  // Left
-    0.5f, -0.5f, 0.0f,   // Right
-    0.0f,  0.5f, 0.0f    // Top
-  };
-  // 生成一个VBO顶点对象，VBO顶点数组对象
-  GLuint VBO, VAO;
+    0.5f,   0.5f, 0.0f,    // 右上角
+    0.5f,  -0.5f, 0.0f,    // 右下角
+    -0.5f, -0.5f, 0.0f,    // 左下角
+    -0.5f,  0.5f, 0.0f     // 左上角
+  }
+
+  GLuint indices[] = {     // 索引从0开始
+    0, 1, 2,               // 第一个三角形
+    1, 2, 3                // 第二个三角形
+  }
+
+  // 生成一个VBO顶点对象，VBO顶点数组对象,EBO索引缓冲对象
+  GLuint VBO, VAO, EBO;
   glGenBuffers(1, &VBO);
   glGenVertexArrays(1, &VAO);
+  glGenBuffers(1, &EBO);
   // 先绑定顶点数组对象，再绑定和设置顶点缓存和属性指针
   glBindVertexArray(VAO);
 
@@ -129,6 +137,11 @@ int main() {
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices),
                vertices, GL_STATIC_DRAW);
+
+  // Index Buffer Object绑定和复制
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices),
+               indices, GL_STATIC_DRAW);
 
   // 设置顶点属性指针
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
@@ -141,6 +154,9 @@ int main() {
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);  // Unbind VAO
 
+  // 解绑定EBO
+  // 不注释这行代码会以线框模式绘制
+  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   // 实现简单的游戏循环
   while (!glfwWindowShouldClose(window)) {   // 要求被退出时函数返回True
     // 是否触发事件
@@ -155,7 +171,9 @@ int main() {
     // 激活程序对象
     glUseProgram(shaderProgram);
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    // glDrawArrays(GL_TRIANGLE, 0, 6);
+    // 从索引缓冲渲染
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0)；
     glBindVertexArray(0);
 
     // 交换screen buffer
@@ -164,6 +182,7 @@ int main() {
   // Properly de-allocate all resources once they've outlived their purpose
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
+  glDeleteBuffers(1, &EBO);
 
   // 释放GLFW分配的内存
   glfwTerminate();
