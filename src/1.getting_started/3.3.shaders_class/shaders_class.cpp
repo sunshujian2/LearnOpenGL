@@ -7,8 +7,10 @@
 // GLFW
 #include <GLFW/glfw3.h>
 // #include <GL/glut.h>
+#include <~/timspace/LearnOpenGL/src/1.getting_started/3.3.shaders_class/shader_s.h>
 #include <math.h>
 #include <iostream>
+
 
 // Function prototypes
 void key_callback(GLFWwindow* window, int key,
@@ -96,7 +98,7 @@ int main() {
   glfwGetFramebufferSize(window, &width, &height);
   glViewport(0, 0, width, height);
 
-
+  /*
   // 建立和编译着色器
   // 创建顶点着色器
   GLuint vertexShader;
@@ -141,7 +143,13 @@ int main() {
   // 删除着色器
   glDeleteShader(vertexShader);
   glDeleteShader(fragmentShader);
+  */
 
+  // Build and compile our shader program
+  Shader ourShader("shader.vs", "shader.fs");
+  
+  // set up vertex data (and buffer(s) and configure vertex attributes)
+  // ----------------------------------------------------------------
   // 设置顶点数据和属性指针
   // 顶点输入
   GLfloat vertices[] = {
@@ -191,7 +199,8 @@ int main() {
     // 查询uniform地址不要求你之前使用过着色程序
     // int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
     // 但是更新Uniform之前需要使用程序
-    glUseProgram(shaderProgram);
+    // glUseProgram(shaderProgram);
+    ourShader.use();
     // glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
     // Draw first triangles
     glBindVertexArray(VAO);
