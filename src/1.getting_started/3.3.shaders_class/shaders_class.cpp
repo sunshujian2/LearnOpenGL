@@ -7,7 +7,7 @@
 // GLFW
 #include <GLFW/glfw3.h>
 // #include <GL/glut.h>
-#include <~/timspace/LearnOpenGL/src/1.getting_started/3.3.shaders_class/shader_s.h>
+#include <learnopengl/shader_s.h>
 #include <math.h>
 #include <iostream>
 
@@ -17,52 +17,6 @@ void key_callback(GLFWwindow* window, int key,
                   int scancode, int action, int mode);
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
-
-// 顶点着色器
-/*
-#verision 330 core
-layout (location = 0) in vec3 aPos;    // 位置变量的属性值为0
-layout (location = 1) in vec3 aColor;  // 颜色变量的属性只为1
-
-out vec3 ourColor;                     // 为片段着色指定一个颜色输出
-
-void main() {
-  gl_Position = vec4(aPos, 1.0);      // 把vec3(aPos)作为构造器的参数
-  ourColor = aColor;                  // 把输出变量设置为暗红色
-}
-*/
-
-// 顶点着色器
-const GLchar* vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "layout (location = 1) in vec3 aColor;\n"
-    "out vec3 outColor;\n"
-    "void main() {\n"
-    "gl_Position = vec4(aPos, 1.0f);\n"
-    "ourColor = vec3aColor;\n"
-    "}\n\0";
-
-// 片段着色器
-/*
-#version 330 core;
-out vec4 FragColor;
-
-in vec3 ourColor;        // 从应用程序传来的输入变量(名称, 类型相同, 会链接)
-
-void main() {
-  FragColor = vec4(ourColor, 1.0f);
-}
-
- */
-
-// 片段着色器
-const GLchar* fragmentShaderSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "in  vec3 ourColor;\n"
-    "void main() {\n"
-    "FragColor = vec4(ourColor, 1.0f);\n"
-    "}\n\0";
-
 // 实例化GLFW窗口
 int main() {
   std::cout << "Starting GLFW context, OpenGL 3.3" << std::endl;
@@ -98,56 +52,9 @@ int main() {
   glfwGetFramebufferSize(window, &width, &height);
   glViewport(0, 0, width, height);
 
-  /*
-  // 建立和编译着色器
-  // 创建顶点着色器
-  GLuint vertexShader;
-  vertexShader = glCreateShader(GL_VERTEX_SHADER);
-  // 源码附加到着色器对象上
-  glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-  glCompileShader(vertexShader);
-  // 检测glComplieShader是否编译成功
-  GLint success;
-  GLchar infoLog[512];
-  glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-  if (!success) {
-    glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
-              << infoLog << std::endl;
-  }
-  // 创建片段着色器
-  GLuint fragmentShader;
-  fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-  // 源码附加到着色器对象上
-  glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-  glCompileShader(fragmentShader);
-  // 检测glComplieShader是否编译成功
-  glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-  if (!success) {
-    glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
-              << infoLog << std::endl;
-  }
-  // 把两个着色器对象链接到用来渲染的着色程序中
-  GLuint shaderProgram;
-  shaderProgram = glCreateProgram();
-  glAttachShader(shaderProgram, vertexShader);
-  glAttachShader(shaderProgram, fragmentShader);
-  glLinkProgram(shaderProgram);
-  glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-  if (!success) {
-    glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
-              << infoLog << std::endl;
-  }
-  // 删除着色器
-  glDeleteShader(vertexShader);
-  glDeleteShader(fragmentShader);
-  */
-
   // Build and compile our shader program
   Shader ourShader("shader.vs", "shader.fs");
-  
+
   // set up vertex data (and buffer(s) and configure vertex attributes)
   // ----------------------------------------------------------------
   // 设置顶点数据和属性指针
@@ -179,11 +86,10 @@ int main() {
   glEnableVertexAttribArray(1);
 
   // 绑定到GL_ARRAY_BUFFER目标上
-  /*Note that this is allowed, the call to glVertexAttribPointer registered VBO
-    as the currently bound vertex buffer object, so afterwards we can safely unbind*/
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);  // Unbind VAO
 
+  // ==============================================================
   // 实现简单的游戏循环
   while (!glfwWindowShouldClose(window)) {   // 要求被退出时函数返回True
     // 是否触发事件
@@ -193,15 +99,13 @@ int main() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // float timeValue = glfwGetTime();
-    // float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-    // std:: cout << "greenValue =  " <<  greenValue << std::endl;
     // 查询uniform地址不要求你之前使用过着色程序
     // int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
     // 但是更新Uniform之前需要使用程序
-    // glUseProgram(shaderProgram);
     ourShader.use();
-    // glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+    // glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f)
+    // ourShader.setBool("ourColor", true)
+    
     // Draw first triangles
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
