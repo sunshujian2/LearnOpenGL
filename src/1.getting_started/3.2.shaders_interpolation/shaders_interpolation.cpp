@@ -58,7 +58,7 @@ const GLchar* fragmentShaderSource = "#version 330 core\n"
     "out vec4 FragColor;\n"
     "in  vec3 ourColor;\n"
     "void main() {\n"
-    "FragColor = vec4(ourColor, 1.0f);\n"
+    "FragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);\n"
     "}\n\0";
 
 // 实例化GLFW窗口
