@@ -7,7 +7,7 @@
 // GLFW
 #include <GLFW/glfw3.h>
 // #include <GL/glut.h>
-
+#include <math.h>
 #include <iostream>
 
 // Function prototypes
@@ -31,12 +31,12 @@ void main() {
 
 // 顶点着色器
 const GLchar* vertexShaderSource = "#version 330 core\n"
-  "layout (location = 0) in vec3 aPos;\n"
-  "out vec4 vertexColor;\n"
-  "void main() {\n"
-  "gl_Position = vec4(aPos, 1.0);\n"
-  "vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
-  "}\n\0";
+    "layout (location = 0) in vec3 aPos;\n"
+    "out vec4 vertexColor;\n"
+    "void main() {\n"
+    "gl_Position = vec4(aPos, 1.0);\n"
+    "vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
+    "}\n\0";
 
 // 片段着色器
 /*
@@ -54,9 +54,9 @@ void main() {
 // 片段着色器
 const GLchar* fragmentShaderSource = "#version 330 core\n"
     "out vec4 FragColor;\n"
-    "in vec4 vertexColor;\n"
+    "uniform vec4 ourColor;\n"
     "void main() {\n"
-    "FragColor = vertexColor;\n"
+    "FragColor = ourColor;\n"
     "}\n\0";
 
 // 实例化GLFW窗口
@@ -179,8 +179,9 @@ int main() {
 
     float timeValue = glfwGetTime();
     float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+    // std:: cout << "greenValue =  " <<  greenValue << std::endl;
     // 查询uniform地址不要求你之前使用过着色程序
-    int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourcolor");
+    int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
     // 但是更新Uniform之前需要使用程序
     glUseProgram(shaderProgram);
     glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
