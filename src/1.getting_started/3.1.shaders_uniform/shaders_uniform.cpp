@@ -43,10 +43,10 @@ const GLchar* vertexShaderSource = "#version 330 core\n"
 #version 330 core;
 out vec4 FragColor;
 
-in vec4 vertexColor;        // 从顶点着色器传来的输入变量(名称, 类型相同, 会链接)
+uniform vec4 ourColor;        // 从应用程序传来的输入变量(名称, 类型相同, 会链接)
 
 void main() {
-  FragColor = vertexColor;
+  FragColor = ourColor;
 }
 
  */
@@ -177,9 +177,14 @@ int main() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Draw first triangles
-    // 激活程序对象
+    float timeValue = glfwGetTime();
+    float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+    // 查询uniform地址不要求你之前使用过着色程序
+    int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourcolor");
+    // 但是更新Uniform之前需要使用程序
     glUseProgram(shaderProgram);
+    glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+    // Draw first triangles
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glBindVertexArray(0);
