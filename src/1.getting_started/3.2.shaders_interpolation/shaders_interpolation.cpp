@@ -20,22 +20,24 @@ const GLuint WIDTH = 800, HEIGHT = 600;
 /*
 #verision 330 core
 layout (location = 0) in vec3 aPos;    // 位置变量的属性值为0
+layout (location = 1) in vec3 aColor;  // 颜色变量的属性只为1
 
-out vec4 vertexColor;      // 为片段着色指定一个颜色输出
+out vec3 ourColor;                     // 为片段着色指定一个颜色输出
 
 void main() {
   gl_Position = vec4(aPos, 1.0);      // 把vec3(aPos)作为构造器的参数
-  vertexColor = vec4(0.5f, 0.0f, 0.0f, 1.0f);   // 把输出变量设置为暗红色
+  ourColor = aColor;                  // 把输出变量设置为暗红色
 }
 */
 
 // 顶点着色器
 const GLchar* vertexShaderSource = "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
-    "out vec4 vertexColor;\n"
+    "layout (location = 1) in vec3 aColor;\n"
+    "out vec4 outColor;\n"
     "void main() {\n"
     "gl_Position = vec4(aPos, 1.0);\n"
-    "vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
+    "ourColor = aColor;\n"
     "}\n\0";
 
 // 片段着色器
@@ -43,10 +45,10 @@ const GLchar* vertexShaderSource = "#version 330 core\n"
 #version 330 core;
 out vec4 FragColor;
 
-uniform vec4 ourColor;        // 从应用程序传来的输入变量(名称, 类型相同, 会链接)
+in vec3 ourColor;        // 从应用程序传来的输入变量(名称, 类型相同, 会链接)
 
 void main() {
-  FragColor = ourColor;
+  FragColor = vec4(ourColor, 1.0f);
 }
 
  */
@@ -54,9 +56,9 @@ void main() {
 // 片段着色器
 const GLchar* fragmentShaderSource = "#version 330 core\n"
     "out vec4 FragColor;\n"
-    "uniform vec4 ourColor;\n"
+    "in  vec3 ourColor;\n"
     "void main() {\n"
-    "FragColor = ourColor;\n"
+    "FragColor = vec4(ourColor, 1.0f);\n"
     "}\n\0";
 
 // 实例化GLFW窗口
@@ -143,9 +145,10 @@ int main() {
   // 设置顶点数据和属性指针
   // 顶点输入
   GLfloat vertices[] = {
-    -0.5f, -0.5f, 0.0f,  // Left
-    0.5f, -0.5f, 0.0f,   // Right
-    0.0f,  0.5f, 0.0f    // Top
+    // 位置              //颜色
+    -0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f          // Left
+    0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f          // Right
+    0.0f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f          // Top
   };
   // 生成一个VBO顶点对象，VBO顶点数组对象
   GLuint VBO, VAO;
@@ -157,10 +160,15 @@ int main() {
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices),
                vertices, GL_STATIC_DRAW);
-  // 设置顶点属性指针
+  // 更新VAO中的顶点格式
+  // 设置顶点位置属性指针
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-                        3 * sizeof(GLfloat), (GLvoid*)0);
+                        6 * sizeof(GLfloat), (GLvoid*)0);
   glEnableVertexAttribArray(0);
+  // 设置颜色属性指针
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+                        6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+  glEnableVertexAttribArray(1);
 
   // 绑定到GL_ARRAY_BUFFER目标上
   /*Note that this is allowed, the call to glVertexAttribPointer registered VBO
@@ -177,14 +185,14 @@ int main() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    float timeValue = glfwGetTime();
-    float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+    // float timeValue = glfwGetTime();
+    // float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
     // std:: cout << "greenValue =  " <<  greenValue << std::endl;
     // 查询uniform地址不要求你之前使用过着色程序
-    int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+    // int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
     // 但是更新Uniform之前需要使用程序
     glUseProgram(shaderProgram);
-    glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+    // glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
     // Draw first triangles
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
