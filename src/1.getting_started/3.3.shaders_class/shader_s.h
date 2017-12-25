@@ -17,7 +17,7 @@
 class Shader {
  public:
   // 程序ID
-  unsinged int ID;
+  unsigned int ID;
 
   // 构造器读取并建构着色器
   Shader(const GLchar* vertexPath, const GLchar* fragmentPath) {
@@ -60,7 +60,7 @@ class Shader {
     glCompileShader(vertex);
     checkCompileErrors(vertex, "VERTEX");
     // 着色片段也类似
-    fragment = glCreateShader();
+    fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fShaderCode, NULL);
     glCompileShader(fragment);
     checkCompileErrors(fragment, "FRAGMENT");
@@ -78,16 +78,16 @@ class Shader {
   }
   // 使用/激活程序
   void use() {
-    glUseProgram(ID);
+    glUseProgram(ID);     // 在类内的作用域比函数的作用域大
   }
   // uniform工具函数
-  void setBool(const std::string &name, bool value) const {
+  void setBool(unsigned int ID, const std::string &name, bool value) const {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), int(value));
   }
-  void setInt(const std::string &name, int value) const {
-    glUniform1i(glGetUniformLocation(ID, name.c_str()), value)
+  void setInt(unsigned int ID, const std::string &name, int value) const {
+    glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
   }
-  void setFloat(const std::string &name, float value) const {
+  void setFloat(unsigned int ID, const std::string &name, float value) const {
     glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
   }
 
