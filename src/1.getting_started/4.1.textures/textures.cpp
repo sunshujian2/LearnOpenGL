@@ -18,12 +18,14 @@
 #include <math.h>
 #include <iostream>
 
-
 // Function prototypes
-void key_callback(GLFWwindow* window, int key,
-                  int scancode, int action, int mode);
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void processInput(GLFWwindow *window);
+
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
+
+
 // 实例化GLFW窗口
 int main() {
   std::cout << "Starting GLFW context, OpenGL 3.3" << std::endl;
@@ -45,7 +47,7 @@ int main() {
   // 设置当前的上下文
   glfwMakeContextCurrent(window);
   // 注册函数至适合的回调
-  glfwSetKeyCallback(window, key_callback);
+  glfwSetKeyCallback(window, framebuffer_size_callback);
 
 
   // 初始化GLEW
@@ -151,7 +153,7 @@ int main() {
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glBindVertexArray(0);
-
+    ghUniform
     // 绑定纹理, 会自动把纹理赋值给片段着色器的采样器
     glBindTexture(GL_TEXTURE_2D, texture);
     glBindVertexArray(VAO);
@@ -170,13 +172,17 @@ int main() {
   return 0;
 }
 
-void key_callback(GLFWwindow* window, int key,
-                  int scancode, int action, int mode) {
-  // 当用户按下esc键, 我们设置window窗口的windowShouldCloseni属性为True
-  // 关闭应用程序
-  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-    glfwSetWindowShouldClose(window, GL_TRUE);
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+  // make sure the viewport matches the new window dimensions;
+  glViewport(0, 0, width, height);
 }
+
+void processInput(GLFWwindow *window) {
+  // 当用户按下esc键, 我们设置window窗口的windowShouldCloseni属性为True
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    glfwSetWindowShouldClose(window, true);
+}
+
 
 /*
 void f() {
