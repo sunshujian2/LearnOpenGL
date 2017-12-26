@@ -81,13 +81,13 @@ class Shader {
     glUseProgram(ID);     // 在类内的作用域比函数的作用域大
   }
   // uniform工具函数
-  void setBool(unsigned int ID, const std::string &name, bool value) const {
+  void setBool(const std::string &name, bool value) const {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), int(value));
   }
-  void setInt(unsigned int ID, const std::string &name, int value) const {
+  void setInt(const std::string &name, int value) const {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
   }
-  void setFloat(unsigned int ID, const std::string &name, float value) const {
+  void setFloat(const std::string &name, float value) const {
     glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
   }
 
