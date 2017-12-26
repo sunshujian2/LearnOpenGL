@@ -10,6 +10,10 @@
 // GLFW
 #include <GLFW/glfw3.h>
 // #include <GL/glut.h>
+// stb_image.h
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 #include <learnopengl/shader_s.h>
 #include <math.h>
 #include <iostream>
@@ -55,18 +59,49 @@ int main() {
   glfwGetFramebufferSize(window, &width, &height);
   glViewport(0, 0, width, height);
 
+  // =========================================================
+  unsigned int texture;
+  glGenTextures(1, &texture);                 // generate
+  glBindTexture(GL_TEXTURE_2D, texture);      // bind
+  // 为当前绑定设置环绕和过滤方式
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  // 加载图片stbi_image库
+  int nrChannels;
+  unsigned char* data = stbi_load(
+      "../../../resources/textures/container.jpg",
+      &width, &height, &nrChannels, 0);
+  // 生成纹理
+  if (data) {
+    // 图片导入成功
+    glTexImage2D(GL_TEXTURE_2D,
+               0, GL_RGB, width, height,
+               0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    // 为当前绑定的纹理自动生成所需要的多级渐远纹理
+    glGenerateMipmap(GL_TEXTURE_2D);
+  } else {
+    // 图片导入失败
+    std::cout << "Failed to load texture" << std::endl;
+  }
+  // 释放图像内存
+  stbi_image_free(data);
+  // =================================================
+
   // Build and compile our shader program
-  Shader ourShader("shader.vs", "shader.fs");
+  Shader ourShader("shader_texture.vs", "shader_texture.fs");
 
   // set up vertex data (and buffer(s) and configure vertex attributes)
   // ----------------------------------------------------------------
   // 设置顶点数据和属性指针
   // 顶点输入
   GLfloat vertices[] = {
-    // 位置              //颜色
-    -0.5f, 0.5f, 0.0f,   1.0f, 0.0f, 0.0f,         // Left, red
-    0.5f,  0.5f, 0.0f,   0.0f, 1.0f, 0.0f,         // Right, green
-    0.0f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f          // Down, blue
+    // -------位置--------    -------颜色------   --纹理坐标--
+    0.5f,   0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   1.0f,  1.0f,  // 右上角
+    0.5f,  -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   1.0f, -1.0f,  // 右下角
+    -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  -1.0f, -1.0f,  // 左下角
+    -0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 0.0f,  -1.0f,  1.0f   // 左上角
   };
   // 生成一个VBO顶点对象，VBO顶点数组对象
   GLuint VBO, VAO;
@@ -81,12 +116,16 @@ int main() {
   // 更新VAO中的顶点格式
   // 设置顶点位置属性指针
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-                        6 * sizeof(GLfloat), (GLvoid*)0);
+                        8 * sizeof(GLfloat), (GLvoid*)(5* sizeof(GLfloat)));
   glEnableVertexAttribArray(0);
   // 设置颜色属性指针
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-                        6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+                        8 * sizeof(GLfloat), (GLvoid*)(5 * sizeof(GLfloat)));
   glEnableVertexAttribArray(1);
+  // 设置纹理属性指针
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
+                        8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+  glEnableVertexAttribArray(2);
 
   // 绑定到GL_ARRAY_BUFFER目标上
   glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -97,20 +136,27 @@ int main() {
   while (!glfwWindowShouldClose(window)) {   // 要求被退出时函数返回True
     // 是否触发事件
     glfwPollEvents();
-    // Render
+    // 渲染
     // 清空颜色缓冲
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    float offset = 0.5;
+    // float offset = 0.5;
     ourShader.use();
-    glUniform1f(glGetUniformLocation(ourShader.ID, "xOffset"),
-                offset);          // 查询获取位置和更新Uniform
+    // glUniform1f(glGetUniformLocation(ourShader.ID, "xOffset"),
+    //            offset);          // 查询获取位置和更新Uniform
 
-    // Draw first triangles
+    
+    // 绘制三角形
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glBindVertexArray(0);
+
+    // 绑定纹理, 会自动把纹理赋值给片段着色器的采样器
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindVertexArray(VAO);
+    // 绘制纹理
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     // 交换screen buffer
     glfwSwapBuffers(window);
@@ -132,4 +178,59 @@ void key_callback(GLFWwindow* window, int key,
     glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
+/*
+void f() {
+  unsigned int texture;
+  glGenTextures(1, &texture);                 // generate
+  glBindTexture(GL_TEXTURE_2D, texture);      // bind
+  // 为当前绑定设置环绕和过滤方式
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  // 加载图片stbi_image库
+  int width, height, nrChannels;
+  unsigned char* data = stbi_load(
+      "../../../resources/textures/container.jpg",
+      &width, &height, &nrChannels, 0);
+  // 生成纹理
+  if (data) {
+    // 图片导入成功
+    glTexImage2D(GL_TEXTURE_2D,
+               0, GL_RGB, width, height,
+               0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    // 为当前绑定的纹理自动生成所需要的多级渐远纹理
+    glGenerateMipmap(GL_TEXTURE_2D);
+  } else {
+    // 图片导入失败
+    std::cout << "Failed to load texture" << std::endl;
+  }
+  // 释放图像内存
+  stbi_image_free(data);
+}
+  
+
+void apply_texture {
+  // 应用纹理
+  float vertices[] = {
+// -------位置--------    -------颜色------   --纹理坐标--
+    0.5f,   0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   1.0f,  1.0f,  // 右上角
+    0.5f,  -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   1.0f, -1.0f,  // 右下角
+    -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  -1.0f, -1.0f,  // 左下角
+    -0.5f,  0.5f, 0.0f   1.0f, 1.0f, 0.0f,  -1.0f,  1.0f   // 左上角
+  };
+
+  // 新的顶点格式
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
+                        8*sizeof(float), (void*)(6*(sizeof(float))));
+  glEnableVertexAttribArray(2);
+
+  // 绑定纹理, 会自动把纹理赋值给片段着色器的采样器
+  glBindTexture(GL_TEXTURE_2D, texture);
+  glBindVertexArray(VAO);
+
+  // 调用glDrawElements绘制
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
+*/
 // ..
