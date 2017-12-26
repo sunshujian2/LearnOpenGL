@@ -1,5 +1,8 @@
 // Copyright <2017>[Tim Hu]
+/*
+使用uniform定义一个水平偏移量，在顶点着色器中使用这个偏移量把三角形移动到屏幕右侧
 
+*/
 
 // GLEW
 #define GLEW_STATIC
@@ -104,8 +107,8 @@ int main() {
     // 但是更新Uniform之前需要使用程序
     ourShader.use();
     // glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f)
-    // ourShader.setBool("ourColor", true)
-    
+    ourShader.setBool("ourPos", true);
+
     // Draw first triangles
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -132,25 +135,3 @@ void key_callback(GLFWwindow* window, int key,
 }
 
 // ..
-
-
-/*
-int main_sub() {
-  
-  // 顶点属性的上限
-  // int nrAttributes;
-  // glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
-  // std::cout << "Maxium nr of vertex attributes supported: "
-  //           << nrAttributes << std::endl;
-  
-
-  int nrAttributes;
-  glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
-  std::cout << "Maximum nr of vertex attributes supported: "
-            << nrAttributes << std::endl;   // 0????
-
-  // 向量运算
-  vec2 somevec;
-  vec4 differentVec = someVec.xyzz;
-}
-*/
