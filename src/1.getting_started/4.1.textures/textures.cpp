@@ -47,7 +47,7 @@ int main() {
   // 设置当前的上下文
   glfwMakeContextCurrent(window);
   // 注册函数至适合的回调
-  glfwSetKeyCallback(window, framebuffer_size_callback);
+  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 
   // 初始化GLEW
@@ -136,6 +136,10 @@ int main() {
   // ==============================================================
   // 实现简单的游戏循环
   while (!glfwWindowShouldClose(window)) {   // 要求被退出时函数返回True
+    // input
+    // ------
+    processInput(window);
+
     // 是否触发事件
     glfwPollEvents();
     // 渲染
@@ -153,7 +157,7 @@ int main() {
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glBindVertexArray(0);
-    ghUniform
+    // ghUniform
     // 绑定纹理, 会自动把纹理赋值给片段着色器的采样器
     glBindTexture(GL_TEXTURE_2D, texture);
     glBindVertexArray(VAO);
