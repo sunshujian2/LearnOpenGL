@@ -102,12 +102,15 @@ int main() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    float offset = 0.5;
     // 查询uniform地址不要求你之前使用过着色程序
-    // int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+    int vertexColorLocation = glGetUniformLocation(
+        ourShader.ID, "xOffset");
     // 但是更新Uniform之前需要使用程序
     ourShader.use();
-    // glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f)
-    ourShader.setBool("ourPos", true);
+    glUniform1f(vertexColorLocation, offset);
+    glUniform1f(glGetUniformLocation(ourShader.ID, "xOffset"),
+                offset);          // 查询获取位置和更新Uniform
 
     // Draw first triangles
     glBindVertexArray(VAO);
