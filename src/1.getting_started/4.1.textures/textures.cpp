@@ -56,22 +56,60 @@ int main() {
     std::cout << "Failed to initialize GLEW" << std::endl;
     return -1;
   }
-  // 设置窗口维度(Dimension)
-  int width, height;
-  glfwGetFramebufferSize(window, &width, &height);
-  glViewport(0, 0, width, height);
 
-  // =========================================================
+  // 建立和编译着色程序
+  // ===================
+  Shader ourShader("shader_texture.vs", "shader_texture.fs");
+  // 设置顶点数据和属性指针
+  // =====================
+  // 顶点输入
+  GLfloat vertices[] = {
+    // -------位置--------    -------颜色------   --纹理坐标--
+    0.5f,   0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   1.0f,  1.0f,  // 右上角
+    0.5f,  -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   1.0f, -1.0f,  // 右下角
+    -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  -1.0f, -1.0f,  // 左下角
+    -0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 0.0f,  -1.0f,  1.0f   // 左上角
+  };
+  // 生成一个VBO顶点对象，VBO顶点数组对象
+  GLuint VBO, VAO, EBO;
+  glGenVertexArrays(1, &VAO);
+  glGenBuffers(1, &VBO);
+  glGenBuffers(1, &EBO);
+  // 先绑定顶点数组对象，再绑定和设置顶点缓存和属性指针
+  glBindVertexArray(VAO);
+  // 把顶点数组复制到缓存中供OpenGL使用
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices),
+               vertices, GL_STATIC_DRAW);
+  // 设置顶点位置属性指针
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+                        8 * sizeof(GLfloat), (GLvoid*)0);
+  glEnableVertexAttribArray(0);
+  // 设置颜色属性指针
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+                        8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+  // **(3 * sizeof(float) 的意义???**
+  glEnableVertexAttribArray(1);
+  // 设置纹理属性指针
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
+                        8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+  // **(6 * sizeof(float) 的意义???**
+  glEnableVertexAttribArray(2);
+
+  // 加载和创建纹理
+  // =============
   unsigned int texture;
   glGenTextures(1, &texture);                 // generate
   glBindTexture(GL_TEXTURE_2D, texture);      // bind
   // 为当前绑定设置环绕和过滤方式
+  // 设置环绕参数
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  // 设置过滤参数
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   // 加载图片stbi_image库
-  int nrChannels;
+  int width, height, nrChannels;
   unsigned char* data = stbi_load(
       "../../../resources/textures/container.jpg",
       &width, &height, &nrChannels, 0);
@@ -89,87 +127,45 @@ int main() {
   }
   // 释放图像内存
   stbi_image_free(data);
-  // =================================================
 
-  // Build and compile our shader program
-  Shader ourShader("shader_texture.vs", "shader_texture.fs");
-
-  // set up vertex data (and buffer(s) and configure vertex attributes)
-  // ----------------------------------------------------------------
-  // 设置顶点数据和属性指针
-  // 顶点输入
-  GLfloat vertices[] = {
-    // -------位置--------    -------颜色------   --纹理坐标--
-    0.5f,   0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   1.0f,  1.0f,  // 右上角
-    0.5f,  -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   1.0f, -1.0f,  // 右下角
-    -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  -1.0f, -1.0f,  // 左下角
-    -0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 0.0f,  -1.0f,  1.0f   // 左上角
-  };
-  // 生成一个VBO顶点对象，VBO顶点数组对象
-  GLuint VBO, VAO;
-  glGenBuffers(1, &VBO);
-  glGenVertexArrays(1, &VAO);
-  // 先绑定顶点数组对象，再绑定和设置顶点缓存和属性指针
-  glBindVertexArray(VAO);
-  // 把顶点数组复制到缓存中供OpenGL使用
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices),
-               vertices, GL_STATIC_DRAW);
-  // 更新VAO中的顶点格式
-  // 设置顶点位置属性指针
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-                        8 * sizeof(GLfloat), (GLvoid*)(5* sizeof(GLfloat)));
-  glEnableVertexAttribArray(0);
-  // 设置颜色属性指针
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-                        8 * sizeof(GLfloat), (GLvoid*)(5 * sizeof(GLfloat)));
-  glEnableVertexAttribArray(1);
-  // 设置纹理属性指针
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-                        8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
-  glEnableVertexAttribArray(2);
-
-  // 绑定到GL_ARRAY_BUFFER目标上
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);  // Unbind VAO
-
+  // 渲染loop
   // ==============================================================
-  // 实现简单的游戏循环
-  while (!glfwWindowShouldClose(window)) {   // 要求被退出时函数返回True
+  while (!glfwWindowShouldClose(window)) {
     // input
     // ------
     processInput(window);
 
-    // 是否触发事件
-    glfwPollEvents();
     // 渲染
-    // 清空颜色缓冲
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    // 清空颜色缓冲
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // float offset = 0.5;
-    ourShader.use();
-    // glUniform1f(glGetUniformLocation(ourShader.ID, "xOffset"),
-    //            offset);          // 查询获取位置和更新Uniform
-
-    
-    // 绘制三角形
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glBindVertexArray(0);
-    // ghUniform
     // 绑定纹理, 会自动把纹理赋值给片段着色器的采样器
     glBindTexture(GL_TEXTURE_2D, texture);
+
+    ourShader.use();
     glBindVertexArray(VAO);
     // 绘制纹理
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
+    // 设置uniform smapler2D?
+    // glUniform1f(glGetUniformLocation(ourShader.ID, "xOffset"),
+    //            offset);          // 查询获取位置和更新Uniform
+
+    // 绘制三角形
+    // glBindVertexArray(VAO);
+    // glDrawArrays(GL_TRIANGLES, 0, 3);
+    // glBindVertexArray(0);
+    // ghUniform
+    
     // 交换screen buffer
     glfwSwapBuffers(window);
+    glfwPollEvents();
   }
   // Properly de-allocate all resources once they've outlived their purpose
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
+  glDeleteBuffers(1, &EBO);
 
   // 释放GLFW分配的内存
   glfwTerminate();
