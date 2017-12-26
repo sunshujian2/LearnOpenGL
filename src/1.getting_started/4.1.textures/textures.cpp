@@ -57,6 +57,7 @@ int main() {
     return -1;
   }
 
+  
   // 建立和编译着色程序
   // ===================
   Shader ourShader("shader_texture.vs", "shader_texture.fs");
@@ -66,21 +67,32 @@ int main() {
   GLfloat vertices[] = {
     // -------位置--------    -------颜色------   --纹理坐标--
     0.5f,   0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   1.0f,  1.0f,  // 右上角
-    0.5f,  -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   1.0f, -1.0f,  // 右下角
-    -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  -1.0f, -1.0f,  // 左下角
-    -0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 0.0f,  -1.0f,  1.0f   // 左上角
+    0.5f,  -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   1.0f,  0.0f,  // 右下角
+    -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,   0.0f,  0.0f,  // 左下角
+    -0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 0.0f,   0.0f,  1.0f   // 左上角
+  };
+  unsigned int indices[] = {
+    0, 1, 3,    // 第一个三角形
+    1, 2, 3     // 第二个三角形
   };
   // 生成一个VBO顶点对象，VBO顶点数组对象
   GLuint VBO, VAO, EBO;
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
   glGenBuffers(1, &EBO);
+
   // 先绑定顶点数组对象，再绑定和设置顶点缓存和属性指针
   glBindVertexArray(VAO);
+
   // 把顶点数组复制到缓存中供OpenGL使用
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices),
                vertices, GL_STATIC_DRAW);
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices),
+               indices, GL_STATIC_DRAW);
+
   // 设置顶点位置属性指针
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
                         8 * sizeof(GLfloat), (GLvoid*)0);
@@ -157,7 +169,7 @@ int main() {
     // glDrawArrays(GL_TRIANGLES, 0, 3);
     // glBindVertexArray(0);
     // ghUniform
-    
+
     // 交换screen buffer
     glfwSwapBuffers(window);
     glfwPollEvents();
