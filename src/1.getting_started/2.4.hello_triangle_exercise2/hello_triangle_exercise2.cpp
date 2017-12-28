@@ -181,7 +181,7 @@ int main() {
     // =====激活程序对象绘制第二个triangle======
     glBindVertexArray(VAOs[1]);
     glDrawArrays(GL_TRIANGLES, 0, 3);  // 从索引0开始依次绘制3个顶点
-    // glBindVertexArray(0);  // Unbind VAO 是放在这里吗
+    glBindVertexArray(0);  // Unbind VAO 是放在这里吗
 
     // 从索引缓冲渲染
     //  glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
