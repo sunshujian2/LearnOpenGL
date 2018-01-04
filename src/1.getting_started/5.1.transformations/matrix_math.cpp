@@ -41,8 +41,60 @@ void cross_product(float vec1[], float vec2[], float vec_r[]) {
   vec_r[2] = vec1[0] * vec2[1] - vec1[1] * vec2[0];
 }
 
+
+
+class glm {
+ public:
+  class vec3{};
+  class vec4{};
+  class mat4{};
+  vec3 translate(mat4 trans, vec3 vec3_inst);
+};
+
+
+void translate(float trans[4][4], float vec[4][1]) {
+  /*
+    [2 0 0 1]  [x]    [2x+1]
+    [0 2 0 2]  [y]    [2y+2]
+    [0 0 2 3]* [z] =  [2z+3]
+    [0 0 0 1]  [1]    [  1 ]
+   */
+  // 左列与右行数是否相等
+  int li_t = 4, col_t = 4;
+  std::cout << "-- -------print matrix--------- --" << std::endl;
+  for (int i = 0; i < li_t; i++) {
+    for (int j = 0; j < col_t; j++) {
+      std::cout << trans[i][j] << ',';
+    }
+    std::cout << '\n';
+  }
+  int li_v = 4, col_v = 1;
+  std::cout << "-- -------print vector--------- --" << std::endl;
+  for (int i = 0; i < li_v; i++) {
+    for (int j = 0; j < col_v; j++) {
+      std::cout << vec[i][j] << ',';
+    }
+    std::cout << '\n';
+  }
+  // matrix multiply
+  std::cout << "-- -------matrix multiply--------- --" << std::endl;
+  float trans_mul[4][4] = {};
+  for (int i = 0; i < li_t; i++) {
+    float line_mass = 0;
+    for (int j = 0; j < col_t; j++) {
+      std::cout << vec[j][0] << ',';
+      line_mass += trans[i][j] * vec[j][0];
+    }
+    trans_mul[i][0] = line_mass;
+    line_mass = 0;
+    std::cout << "trans_mul[i][0] = " << trans_mul[i][0] << '\n';
+  }
+  trans = trans_mul;
+}
+
 int main() {
   // ...
+  /*
   float vec1[] = {0.6, -0.8};
   float vec2[] = {0  ,  1};
   float dot_r = dot_product(vec1, vec2);
@@ -57,5 +109,29 @@ int main() {
   std::cout << "cross_product result = " << cross_vec_r[0] << ','
             << cross_vec_r[1] << ','
             << cross_vec_r[2] << std::endl;
+  */
+
+  // -- -------maxtrix----------- --
+  float trans[4][4] = {{1, 0, 0, 1},
+                       {0, 1, 0, 2},
+                       {0, 0, 1, 3},
+                       {0, 0, 0, 1}
+  };
+
+  float vec4_mat[4][1] = {{1.3},
+                          {2.2},
+                          {3.1},
+                          {1}
+  };
+
+  translate(trans, vec4_mat);
+  std::cout << "-- -------print matrix--------- --" << std::endl;
+  int li_t = 4, col_t = 4;
+  for (int i = 0; i < li_t; i++) {
+    for (int j = 0; j < col_t; j++) {
+      std::cout << trans[i][j] << ',';
+    }
+    std::cout << '\n';
+  }
   return 0;
 }
