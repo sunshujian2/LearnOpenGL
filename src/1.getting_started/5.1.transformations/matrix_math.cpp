@@ -19,6 +19,8 @@ float dot_product(float vec1[], float vec2[]);
 float length(float vec1[], float vec2[]);
 float angle(float vec[]);
 float* cross_product(float vec1[], float vec2[]);
+void revise_array(int A[]);
+
 
 float dot_product(float vec1[], float vec2[]) {
   float product_result = vec1[0] * vec2[0] + vec1[1] * vec2[1];
@@ -72,25 +74,35 @@ void translate(float trans[4][4], float vec[4][1]) {
     std::cout << '\n';
   }
   // matrix multiply
-  std::cout << "-- -------matrix multiply--------- --" << std::endl;
-  float trans_mul[4][4] = {};
+  std::cout << "-- -------matrix vector multiply--------- --" << std::endl;
+  float vec_mul[4][1] = {};
   for (int i = 0; i < li_t; i++) {
     float line_mass = 0;
     for (int j = 0; j < col_t; j++) {
       std::cout << vec[j][0] << ',';
       line_mass += trans[i][j] * vec[j][0];
     }
-    trans_mul[i][0] = line_mass;
+    vec_mul[i][0] = line_mass;
     line_mass = 0;
-    std::cout << "trans_mul[i][0] = " << trans_mul[i][0] << '\n';
+    std::cout << "vec_mul[i][0] = " << vec_mul[i][0] << '\n';
   }
-  trans = trans_mul;
+  vec = vec_mul;
+}
+
+void revise_array(int A[2][3]) {
+  A[0][0] = 5;
+  A[0][1] = 2;
+  A[0][2] = -1;
+  // A[0] = {5, 2, -1};
 }
 
 void test_array() {
   int arr[] = {1, -1, 5};
-  int i = *arr+1;
+  int i = *(arr+1);
   std::cout << "i = " << i << std::endl;
+  int arr_d[2][3] = {{4, -2, 3}, {1, 9, 8}};
+  revise_array(arr_d);
+  std::cout << "arr[0] = " << arr_d[0][0] << std::endl;
 }
 
 int main() {
@@ -124,13 +136,13 @@ int main() {
                           {3.1},
                           {1}
   };
+  int li_v = 4, col_v = 1;
 
   translate(trans, vec4_mat);
-  std::cout << "-- -------print matrix--------- --" << std::endl;
-  int li_t = 4, col_t = 4;
-  for (int i = 0; i < li_t; i++) {
-    for (int j = 0; j < col_t; j++) {
-      std::cout << trans[i][j] << ',';
+  std::cout << "-- -------print vector--------- --" << std::endl;
+  for (int i = 0; i < li_v; i++) {
+    for (int j = 0; j < col_v; j++) {
+      std::cout << vec4_mat[i][j] << ',';
     }
     std::cout << '\n';
   }
