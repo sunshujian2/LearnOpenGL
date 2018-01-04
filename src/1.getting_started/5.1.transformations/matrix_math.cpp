@@ -8,6 +8,10 @@
 
 #include <math.h>
 #include <iostream>
+// include OpenGL Mathematic
+// #include <glm/glm.hpp>
+// #include <glm/gtc/matrix_transform.hpp>
+// #include <glm/gtc/type_ptr.hpp>
 
 #define PI 3.1415926;
 
@@ -41,15 +45,6 @@ void cross_product(float vec1[], float vec2[], float vec_r[]) {
   vec_r[2] = vec1[0] * vec2[1] - vec1[1] * vec2[0];
 }
 
-
-
-class glm {
- public:
-  class vec3{};
-  class vec4{};
-  class mat4{};
-  vec3 translate(mat4 trans, vec3 vec3_inst);
-};
 
 
 void translate(float trans[4][4], float vec[4][1]) {
@@ -90,6 +85,12 @@ void translate(float trans[4][4], float vec[4][1]) {
     std::cout << "trans_mul[i][0] = " << trans_mul[i][0] << '\n';
   }
   trans = trans_mul;
+}
+
+void test_array() {
+  int arr[] = {1, -1, 5};
+  int i = *arr+1;
+  std::cout << "i = " << i << std::endl;
 }
 
 int main() {
@@ -133,5 +134,7 @@ int main() {
     }
     std::cout << '\n';
   }
+  std::cout << "-- -------test array--------- --" << std::endl;
+  test_array();
   return 0;
 }
