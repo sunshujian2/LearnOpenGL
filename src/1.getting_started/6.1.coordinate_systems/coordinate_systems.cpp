@@ -10,6 +10,12 @@
 稍微向后倾斜至地板方向
 离我们有一些距离
 有透视效果
+
+绘制一个立方体
+ - 深度测试
+
+然后我们应该就能看到一个拥有10个正在奇葩地旋转着的立方体的世界。
+ - 储存多个model matrix
 */
 
 // GLEW
@@ -75,15 +81,6 @@ int main() {
   // 设置顶点数据和属性指针
   // =====================
   // 顶点输入
-  /*
-  GLfloat vertices[] = {
-    
-    0.5f,   0.5f, 0.0f,  1.0f,  1.0f,  // 右上角
-    0.5f,  -0.5f, 0.0f,  1.0f,  0.0f,  // 右下角
-    -0.5f, -0.5f, 0.0f,  0.0f,  0.0f,  // 左下角
-    -0.5f,  0.5f, 0.0f,  0.0f,  1.0f   // 左上角
-  };
-  */
   GLfloat vertices[] = {
     // -------位置----   -----纹理坐标--
     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -128,12 +125,19 @@ int main() {
     -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 };
-  /*
-  unsigned int indices[] = {
-    0, 1, 3,    // 第一个三角形
-    1, 2, 3     // 第二个三角形
+    // 10个立方体位置
+  glm::vec3 cubePostions[] = {
+    glm::vec3(0.0f, 0.0f, 0.0f),
+    glm::vec3(2.0f, 5.0f, -15.0f),
+    glm::vec3(-1.5f, -2.2f, -2.5f),
+    glm::vec3(-3.8f, -2.0f, -12.3f),
+    glm::vec3(2.4f, -0.4f, -3.5f),
+    glm::vec3(-1.7f,  3.0f, -7.5f),
+    glm::vec3(1.3f, -2.0f, -2.5f),
+    glm::vec3(1.5f,  2.0f, -2.5f),
+    glm::vec3(1.5f,  0.2f, -1.5f),
+    glm::vec3(-1.3f,  1.0f, -1.5f)
   };
-  */
   // 生成一个VBO顶点对象，VBO顶点数组对象
   GLuint VBO, VAO, EBO;
   glGenVertexArrays(1, &VAO);
@@ -147,10 +151,6 @@ int main() {
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices),
                vertices, GL_STATIC_DRAW);
-
-  // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices),
-  //              indices, GL_STATIC_DRAW);
 
   // 设置顶点位置属性指针
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
@@ -234,6 +234,7 @@ int main() {
   // 开启深度缓冲
   glEnable(GL_DEPTH_TEST);
 
+
   // 渲染loop
   // ==============================================================
   while (!glfwWindowShouldClose(window)) {
@@ -250,18 +251,13 @@ int main() {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, texture2);
 
+    // 激活着色器
     ourShader.use();
 
-    // /*
     // 矩阵定义
     // ==================
-    glm::mat4 model(1.0f);
     glm::mat4 view(1.0f);
     glm::mat4 projection(1.0f);
-    // 模型矩阵, 变换到世界空间
-    model = glm::rotate(model,
-                        (float)glfwGetTime() * glm::radians(50.0f),
-                        glm::vec3(0.5f, 1.0f, 0.0f));
     // 观察矩阵, 将矩阵向我们想要进行移动场景的反方向移动
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
     // 投影矩阵, 场景中适用透视投影
@@ -269,19 +265,25 @@ int main() {
                                   (float)WIDTH/ (float)HEIGHT,
                                   0.1f, 100.0f);
     // 将矩阵传入着色器
-    unsigned int modelLoc = glGetUniformLocation(ourShader.ID, "model");
     unsigned int viewLoc = glGetUniformLocation(ourShader.ID, "view");
     unsigned int projLoc = glGetUniformLocation(ourShader.ID, "projection");
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-    // */
 
-    // /*
+    // 渲染盒子
     glBindVertexArray(VAO);
-    // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    //  */
+    // /*
+    for (unsigned int i = 0; i < 10; i++) {
+      glm::mat4 model(1.0f);
+      model = glm::translate(model, cubePostions[i]);
+      float angle = 20.0f * i;
+      model = glm::rotate(model, glm::radians(angle),
+                           glm::vec3(1.0f, 0.3f, 0.5f));
+      unsigned int modelLoc = glGetUniformLocation(ourShader.ID, "model");
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
+    // */
 
     // 交换screen buffer
     glfwSwapBuffers(window);
