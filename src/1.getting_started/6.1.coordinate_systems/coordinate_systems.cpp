@@ -7,15 +7,16 @@
 */
 
 /*
-稍微向后倾斜至地板方向
-离我们有一些距离
-有透视效果
+稍微向后倾斜至地板方向 glm::mat4 model
+离我们有一些距离       glm::mat4 view
+有透视效果             glm::mat4 perspective
 
 绘制一个立方体
  - 深度测试
 
 然后我们应该就能看到一个拥有10个正在奇葩地旋转着的立方体的世界。
  - 储存多个model matrix
+ - view matrix 在各个方向上的位移，摄像机是如何改变的
 */
 
 // GLEW
@@ -258,8 +259,8 @@ int main() {
     // ==================
     glm::mat4 view(1.0f);
     glm::mat4 projection(1.0f);
-    // 观察矩阵, 将矩阵向我们想要进行移动场景的反方向移动
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    // 观察矩阵, 将矩阵向我们想要进行移动场景的反方向移动 左上方远离
+    view = glm::translate(view, glm::vec3(1.0f, -1.0f, -4.0f));
     // 投影矩阵, 场景中适用透视投影
     projection = glm::perspective(glm::radians(45.0f),
                                   (float)WIDTH/ (float)HEIGHT,
