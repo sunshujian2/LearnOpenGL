@@ -185,31 +185,7 @@ int main() {
   glUniform1i(glGetUniformLocation(ourShader.ID, "texture2"), 1);
   // ourShader.setInt(ourShader.ID, "texture2", 1);
 
-  /*
-  // 矩阵定义
-  // ==================
-  // 模型矩阵, 变换到世界空间
-  glm::mat4 model(1.0f);
-  model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
   
-  // 观察矩阵, 将矩阵向我们想要进行移动场景的反方向移动
-  // glm::mat4 view(1.0f);
-  // view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-  // 投影矩阵, 场景中适用透视投影
-  // float screenWidth = 800.0f, screenHeight = 600.0f;
-  // glm::mat4 projection(1.0f);
-  // projection = glm::perspective(glm::radians(45.0f),
-  //                               screenWidth/ screenHeight,
-  //                               0.1f, 100.0f);
-  
-  // 将矩阵传入着色器
-  int modelLoc = glGetUniformLocation(ourShader.ID, "model");
-  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-  // int viewLoc = glGetUniformLocation(ourShader.ID, "view");
-  // glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-  // int projLoc = glGetUniformLocation(ourShader.ID, "projection");
-  // glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-   */
 
   // 渲染loop
   // ==============================================================
@@ -228,63 +204,34 @@ int main() {
     glBindTexture(GL_TEXTURE_2D, texture1);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, texture2);
-
-    /*
-    // ======= 第一个箱子 =======
-    // 箱子绕移动(0.5f, -0.5f), 旋转动画
-
-    // create transformations
-    glm::mat4 transform(1.0f);
-    transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
-    transform = glm::rotate(transform, (float)glfwGetTime(),
-                             glm::vec3(0.0f, 0.0f, 1.0f));
-    // get matrix's uniform location and set matrix
+    
     ourShader.use();
-    unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
-    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-    // ======= 第二个箱子 =======
-    // 让这个箱子被摆放在窗口的左上角，并且会不断的缩放（而不是旋转）
-    // create transformations
-    transform = glm::mat4(1.0f);
-    transform = glm::translate(transform, glm::vec3(-0.5f, 0.5f, 0.0f));
-    float scaleAmount = sin(glfwGetTime());
-    transform = glm::scale(transform,
-                           glm::vec3(scaleAmount, scaleAmount, scaleAmount));
-    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    */
 
     // /*
     // 矩阵定义
     // ==================
-    // 模型矩阵, 变换到世界空间
     glm::mat4 model(1.0f);
-    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-  
+    glm::mat4 view(1.0f);
+    glm::mat4 projection(1.0f);
+    // 模型矩阵, 变换到世界空间
+    model = glm::rotate(model, glm::radians(-55.0f),
+                        glm::vec3(1.0f, 0.0f, 0.0f));
     // 观察矩阵, 将矩阵向我们想要进行移动场景的反方向移动
-    // glm::mat4 view(1.0f);
-    // view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
     // 投影矩阵, 场景中适用透视投影
-    // float screenWidth = 800.0f, screenHeight = 600.0f;
-    // glm::mat4 projection(1.0f);
-    // projection = glm::perspective(glm::radians(45.0f),
-    //                               screenWidth/ screenHeight,
-    //                               0.1f, 100.0f);
-  
+    projection = glm::perspective(glm::radians(45.0f),
+                                  (float)WIDTH/ (float)HEIGHT,
+                                  0.1f, 100.0f);
     // 将矩阵传入着色器
-    int modelLoc = glGetUniformLocation(ourShader.ID, "model");
+    unsigned int modelLoc = glGetUniformLocation(ourShader.ID, "model");
+    unsigned int viewLoc = glGetUniformLocation(ourShader.ID, "view");
+    unsigned int projLoc = glGetUniformLocation(ourShader.ID, "projection");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    // int viewLoc = glGetUniformLocation(ourShader.ID, "view");
-    // glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-    // int projLoc = glGetUniformLocation(ourShader.ID, "projection");
-    // glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-   //  */
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+    // */
     
     // /*
-    ourShader.use();
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     //  */
