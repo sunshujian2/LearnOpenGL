@@ -248,22 +248,27 @@ int main() {
 
     // 矩阵定义
     // ==================
-    glm::mat4 view(1.0f);
-    glm::mat4 projection(1.0f);
+    // 摄像机位置
+    // Look At
+    float radius = 15.0f;
+    float camX = sin(glfwGetTime()) * radius;
+    float camZ = cos(glfwGetTime()) * radius;
+    // float camX = 0.0f;
+    // float camZ = 3.0f;
+    glm::mat4 view;
+    view = glm::lookAt(glm::vec3(camX, 0.0f, camZ),      // 位置
+                       glm::vec3(0.0f, 0.0f, 0.0f),      // 目标
+                       glm::vec3(0.0f, 1.0f, 0.0f));     // 上向量
+    ourShader.setMat4("view", view);
     // 观察矩阵, 将矩阵向我们想要进行移动场景的反方向移动 左上方远离
-    float speed = 1.2, acc_speed = 0.0, t = glfwGetTime();
-    float dist = speed * t + 1/2 * acc_speed * t * t;
-    // std::cout << "time = " << glfwGetTime() << std::endl;
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f + dist, -3.0f - dist));
+    // view = glm::translate(view, glm::vec3(0.0f, 0.0f, 2.0f));
+    glm::mat4 projection(1.0f);
     // 投影矩阵, 场景中适用透视投影
     projection = glm::perspective(glm::radians(45.0f),
                                   (float)WIDTH/ (float)HEIGHT,
                                   0.1f, 100.0f);
     // 将矩阵传入着色器
-    unsigned int viewLoc = glGetUniformLocation(ourShader.ID, "view");
-    unsigned int projLoc = glGetUniformLocation(ourShader.ID, "projection");
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+    ourShader.setMat4("projection", projection);
 
     // 渲染盒子
     glBindVertexArray(VAO);
@@ -275,8 +280,7 @@ int main() {
       float angle = (i%3 == 0 || i == 0) ? (20.0f * (i+1) * glfwGetTime()) : 0;
       model = glm::rotate(model, glm::radians(angle),
                            glm::vec3(1.0f, 0.3f, 0.5f));
-      unsigned int modelLoc = glGetUniformLocation(ourShader.ID, "model");
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+      ourShader.setMat4("model", model);
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
     // */
@@ -304,6 +308,37 @@ void processInput(GLFWwindow *window) {
   // 当用户按下esc键, 我们设置window窗口的windowShouldCloseni属性为True
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
+}
+
+
+void set_cameraPos() {
+  // 摄像机位置
+  glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+  // 摄像机方向 指向z轴正方向
+  glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+  glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+  // 右轴
+    // 先定义上向量
+  glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+    // 与摄像机方向向量叉乘，两个向量叉乘的结果同时垂直与两个向量
+  glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+  // 上轴
+  glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
+
+  // Look At
+  /*
+  glm::mat4 view;
+  view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),      // 位置
+                     glm::vec3(0.0f, 0.0f, 0.0f),      // 目标
+                     glm::vec3(0.0f, 1.0f, 0.0f));     // 上向量
+  */
+  float radius = 10.0f;
+  float camX = sin(glfwGetTime()) * radius;
+  float camZ = cos(glfwGetTime()) * radius;;
+  glm::mat4 view;
+  view = glm::lookAt(glm::vec3(camX, 0.0f, camZ),      // 位置
+                     glm::vec3(0.0f, 0.0f, 0.0f),      // 目标
+                     glm::vec3(0.0f, 1.0f, 0.0f));     // 上向量
 }
 
 
