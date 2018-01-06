@@ -250,13 +250,13 @@ int main() {
     // ==================
     // 摄像机位置
     // Look At
-    float radius = 15.0f;
+    float radius = 10.0f;
     float camX = sin(glfwGetTime()) * radius;
     float camZ = cos(glfwGetTime()) * radius;
     // float camX = 0.0f;
     // float camZ = 3.0f;
     glm::mat4 view;
-    view = glm::lookAt(glm::vec3(camX, 0.0f, camZ),      // 位置
+    view = glm::lookAt(glm::vec3(camX, 0.0, camZ),      // 位置
                        glm::vec3(0.0f, 0.0f, 0.0f),      // 目标
                        glm::vec3(0.0f, 1.0f, 0.0f));     // 上向量
     ourShader.setMat4("view", view);
