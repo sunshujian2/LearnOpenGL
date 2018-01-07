@@ -34,20 +34,25 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
 
+// camera
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-float deltaTime = 0.0f;
+// timing
+float deltaTime = 0.0f;    // 现在这一帧和上一帧的时差
 float lastFrame = 0.0f;
 
-float pitch = 0.0f, yaw =  0.0f;
-float lastX = WIDTH / 2, lastY = HEIGHT / 2;
-bool firstMouse = true;
+bool firstMouse = true;                        // 鼠标是否被移动
+float pitch = 0.0f, yaw =  -90.0f;             // 偏转角
+float lastX = WIDTH / 2, lastY = HEIGHT / 2;   // 鼠标位置
+float fov = 45.0f;                     // 鼠标滚轮竖直滚动的大小
+
 
 // 实例化GLFW窗口
 int main() {
@@ -71,6 +76,11 @@ int main() {
   glfwMakeContextCurrent(window);
   // 注册函数至适合的回调
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+  // 注册鼠标回调函数
+  glfwSetCursorPosCallback(window, mouse_callback);
+  // 注册滚轮回调函数
+  glfwSetScrollCallback(window, scroll_callback);
+
 
 
   // 初始化GLEW
@@ -246,9 +256,17 @@ int main() {
   // 渲染loop
   // ==============================================================
   while (!glfwWindowShouldClose(window)) {
+    // 前一frame时间
+    float currentFrame = glfwGetTime();
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+
+    // 输入
+    // -----
     processInput(window);
 
     // 渲染
+    // -----
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     // 清空颜色缓冲, 深度缓冲
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -265,24 +283,15 @@ int main() {
     // 矩阵定义
     // ==================
 
-    glfwSetCursorPosCallback(window, mouse_callback);
-    std::cout << "cameraFront.x = " << cameraFront.x << '\n'
-            << "cameraFront.y = " << cameraFront.y << '\n'
-            << "cameraFront.z = " << cameraFront.z << std::endl;
-
-
     // 摄像机位置
     // Look At
-    float currentFrame = glfwGetTime();
-    deltaTime = currentFrame - lastFrame;
-    lastFrame = currentFrame;
     glm::mat4 view;
     view = glm::lookAt(cameraPos,                    // 位置
                        cameraPos + cameraFront,      // 目标
                        cameraUp);                    // 上向量
     ourShader.setMat4("view", view);
     glm::mat4 projection(1.0f);
-    projection = glm::perspective(glm::radians(45.0f),
+    projection = glm::perspective(glm::radians(fov),
                                   (float)WIDTH/ (float)HEIGHT,
                                   0.1f, 100.0f);
     ourShader.setMat4("projection", projection);
@@ -294,7 +303,6 @@ int main() {
       glm::mat4 model(1.0f);
       model = glm::translate(model, cubePostions[i]);
       float angle = (i%3 == 0 || i == 0) ? (20.0f * (i+1) * glfwGetTime()) : 0;
-      // float angle = 20.0f * glfwGetTime();
       model = glm::rotate(model, glm::radians(angle),
                            glm::vec3(1.0f, 0.3f, 0.5f));
       ourShader.setMat4("model", model);
@@ -351,6 +359,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     firstMouse = false;
   }
 
+
   float xoffset = xpos - lastX;
   float yoffset = lastY - ypos;    // 相反, 因为y坐标从底部往顶部增大
   lastX = xpos;
@@ -374,32 +383,17 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
   front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
   front.y = sin(glm::radians(pitch));
   front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-  std::cout << "front.x = " << front.x << '\n'
-            << "front.y = " << front.y << '\n'
-            << "front.z = " << front.z << std::endl;
+  // std::cout << "front.x = " << front.x << '\n'
+  //           << "front.y = " << front.y << '\n'
+  //           << "front.z = " << front.z << std::endl;
   cameraFront = glm::normalize(front);
 
   // 第四步为什么不放在主循环中?
   // 鼠标没有移动前, cameraFront是不会改变的
 }
 
-
-void test_mouse() {
-      // /*
-    // 视角移动 俯仰角 偏航角
-    //  俯仰角
-
-    // glm::vec3 direction(1.0f);
-    // direction.y = sin(glm::radians(pitch));       // 先把角度转换为弧度
-    // direction.x = cos(glm::radians(pitch));
-    // direction.z = cos(glm::radians(pitch));
-
-    // direction.x = cos(glm::radians(yaw)) *
-    //     cos(glm::radians(yaw));     // direction代表Front前轴
-    // direction.y = sin(glm::radians(pitch));
-    // direction.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-
-    // float lastX = WIDTH / 2, lastY = HEIGHT / 2;
-    // mouse_callback(window, lastX, lastY);
-
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+  if (fov >= 1.0f && fov <= 45.0f) fov -= yoffset;
+  if (fov <= 1.0f) fov = 1.0f;
+  if (fov >= 45.0f) fov = 45.0f;
 }
