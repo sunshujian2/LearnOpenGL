@@ -10,6 +10,7 @@
 视角移动
 - 俯仰角(pitch), 偏航角(Yaw), 滚轮角(Roll)
 
+缩放
 */
 
 // GLEW
@@ -46,6 +47,7 @@ float lastFrame = 0.0f;
 
 float pitch = 0.0f, yaw =  0.0f;
 float lastX = WIDTH / 2, lastY = HEIGHT / 2;
+bool firstMouse = true;
 
 // 实例化GLFW窗口
 int main() {
@@ -263,33 +265,10 @@ int main() {
     // 矩阵定义
     // ==================
 
-    // /*
-    // 视角移动 俯仰角 偏航角
-    //  俯仰角
-
-    // glm::vec3 direction(1.0f);
-    // direction.y = sin(glm::radians(pitch));       // 先把角度转换为弧度
-    // direction.x = cos(glm::radians(pitch));
-    // direction.z = cos(glm::radians(pitch));
-
-    // direction.x = cos(glm::radians(yaw)) *
-    //     cos(glm::radians(yaw));     // direction代表Front前轴
-    // direction.y = sin(glm::radians(pitch));
-    // direction.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-
-    // float lastX = WIDTH / 2, lastY = HEIGHT / 2;
-    // mouse_callback(window, lastX, lastY);
     glfwSetCursorPosCallback(window, mouse_callback);
-    // 4, 通过俯仰角和偏航角来计算得到真正的方向向量
-    glm::vec3 front;
-    front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-    front.y = sin(glm::radians(pitch));
-    front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-    // std::cout << "front.x = " << front.x << '\n'
-    //           << "front.y = " << front.y << '\n'
-    //           << "front.z = " << front.z << std::endl;
-    cameraFront += glm::normalize(front);
-    // */
+    std::cout << "cameraFront.x = " << cameraFront.x << '\n'
+            << "cameraFront.y = " << cameraFront.y << '\n'
+            << "cameraFront.z = " << cameraFront.z << std::endl;
 
 
     // 摄像机位置
@@ -365,6 +344,13 @@ void processInput(GLFWwindow *window) {
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
   // ...
+
+  if (firstMouse) {      // firstMouse boo类型，在初次进入时为true
+    lastX = xpos;
+    lastY = ypos;
+    firstMouse = false;
+  }
+
   float xoffset = xpos - lastX;
   float yoffset = lastY - ypos;    // 相反, 因为y坐标从底部往顶部增大
   lastX = xpos;
@@ -382,6 +368,38 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
   pitch = (pitch < -89.0f) ? -89.0f:pitch;
 
   // 设置偏航角
+
+  // 4, 通过俯仰角和偏航角来计算得到真正的方向向量
+  glm::vec3 front;
+  front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+  front.y = sin(glm::radians(pitch));
+  front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+  std::cout << "front.x = " << front.x << '\n'
+            << "front.y = " << front.y << '\n'
+            << "front.z = " << front.z << std::endl;
+  cameraFront = glm::normalize(front);
+
+  // 第四步为什么不放在主循环中?
+  // 鼠标没有移动前, cameraFront是不会改变的
 }
 
 
+void test_mouse() {
+      // /*
+    // 视角移动 俯仰角 偏航角
+    //  俯仰角
+
+    // glm::vec3 direction(1.0f);
+    // direction.y = sin(glm::radians(pitch));       // 先把角度转换为弧度
+    // direction.x = cos(glm::radians(pitch));
+    // direction.z = cos(glm::radians(pitch));
+
+    // direction.x = cos(glm::radians(yaw)) *
+    //     cos(glm::radians(yaw));     // direction代表Front前轴
+    // direction.y = sin(glm::radians(pitch));
+    // direction.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+
+    // float lastX = WIDTH / 2, lastY = HEIGHT / 2;
+    // mouse_callback(window, lastX, lastY);
+
+}
