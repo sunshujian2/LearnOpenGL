@@ -33,8 +33,8 @@ enum Camera_Movement {
 const float YAW = -90.0f;
 // 旋转欧拉角
 const float PITCH = 0.0f;
-  // 相机速度
-const float SPEED = 0.2f;               // keyboard
+// 相机速度
+const float SPEED = 2.0f;               // keyboard
 const float SENSITIVITY = 0.2f;         // mouse
 const float SCROLL = 1.5f;              // scroll
 const float ZOOM = 45.0f;               // fov
@@ -70,20 +70,30 @@ class Camera {
     updateCameraVectors();
   }
 
+  Camera(float posX, float posY, float posZ,
+         float upX, float upY, float upZ,
+         float y = YAW, float p = PITCH):
+  cameraPos(glm::vec3(posX, posY, posZ)),
+  cameraFront(glm::vec3(0.0f, 0.0f, -1.0f)),
+  cameraUp(glm::vec3(upX, upY, upZ)),
+  pitch(p),
+  yaw(y) { }
+
   glm::mat4 getViewMatrix() {
     return glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
   }
 
-  void keyboard_move(Camera_Movement direction) {
+  void keyboard_move(Camera_Movement direction, float deltaTime) {
     // 键盘控制移动
+    float velocity = moveSpeed * deltaTime;
     if (direction == FORWARD)
-      cameraPos += moveSpeed * cameraFront;
+      cameraPos += velocity * cameraFront;
     if (direction == BACKWARD)
-      cameraPos -= moveSpeed * cameraFront;
+      cameraPos -= velocity * cameraFront;
     if (direction == LEFT)
-      cameraPos -= moveSpeed * cameraRight;
+      cameraPos -= velocity * cameraRight;
     if (direction == RIGHT)
-        cameraPos += moveSpeed * cameraRight;
+        cameraPos += velocity * cameraRight;
 
     updateCameraVectors();
   }

@@ -58,10 +58,8 @@ float deltaTime = 0.0f;    // 现在这一帧和上一帧的时差
 float lastFrame = 0.0f;
 
 bool firstMouse = true;                        // 鼠标是否被移动
-// float pitch = 0.0f, yaw =  -90.0f;             // 偏转角
 float lastX = WIDTH / 2, lastY = HEIGHT / 2;   // 鼠标位置
-// float fov = 45.0f;                     // 鼠标滚轮竖直滚动的大小
-// */
+
 
 // 实例化GLFW窗口
 int main() {
@@ -385,6 +383,6 @@ void keyboard_callback(GLFWwindow* window) {
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     direction = RIGHT;
 
-  myCamera.keyboard_move(direction);
+  myCamera.keyboard_move(direction, deltaTime);
 }
 // */
