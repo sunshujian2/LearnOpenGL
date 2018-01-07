@@ -23,6 +23,8 @@
 #include <stb_image.h>
 
 #include <learnopengl/shader_s.h>
+// include my camera class
+#include <learnopengl/camera.h>
 #include <math.h>
 #include <iostream>
 
@@ -30,6 +32,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+
 // Function prototypes
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -39,6 +43,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
 
+// /*
 // camera
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -52,7 +57,7 @@ bool firstMouse = true;                        // 鼠标是否被移动
 float pitch = 0.0f, yaw =  -90.0f;             // 偏转角
 float lastX = WIDTH / 2, lastY = HEIGHT / 2;   // 鼠标位置
 float fov = 45.0f;                     // 鼠标滚轮竖直滚动的大小
-
+// */
 
 // 实例化GLFW窗口
 int main() {
@@ -247,6 +252,8 @@ int main() {
   glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
   glUniform1i(glGetUniformLocation(ourShader.ID, "texture2"), 1);
 
+
+
   // 开启深度缓冲
   glEnable(GL_DEPTH_TEST);
 
@@ -280,15 +287,23 @@ int main() {
     // 激活着色器
     ourShader.use();
 
+    // 初始化camera class
+    // =================
+    Camera myCamera;
+    // std::cout << "myCamera.pitch = " << myCamera.pitch << std::endl;
     // 矩阵定义
     // ==================
-
+    
+    // /*
     // 摄像机位置
     // Look At
     glm::mat4 view;
     view = glm::lookAt(cameraPos,                    // 位置
                        cameraPos + cameraFront,      // 目标
                        cameraUp);                    // 上向量
+    
+    // */
+    // glm::mat4 view = myCamera.View;
     ourShader.setMat4("view", view);
     glm::mat4 projection(1.0f);
     projection = glm::perspective(glm::radians(fov),
@@ -329,6 +344,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
   glViewport(0, 0, width, height);
 }
 
+
+// /*
 void processInput(GLFWwindow *window) {
   // 当用户按下esc键, 我们设置window窗口的windowShouldCloseni属性为True
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -397,3 +414,4 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
   if (fov <= 1.0f) fov = 1.0f;
   if (fov >= 45.0f) fov = 45.0f;
 }
+// */
