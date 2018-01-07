@@ -360,14 +360,11 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     lastY = ypos;
     firstMouse = false;
   }
-  
 
   float xoffset = xpos - lastX;
   float yoffset = lastY - ypos;
-  // std::cout << "xpos_dlt = " << xpos-400 << '\n'
-  //           << "ypos_dlt = " << ypos-300 << '\n'
-  //           << "-- ---------------- --\n"
-  //           << std::endl;
+  lastX = xpos;      // 上一帧更新为当前帧的坐标
+  lastY = ypos;
   myCamera.mouse_move(xoffset, yoffset);
 }
 
