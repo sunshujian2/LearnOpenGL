@@ -50,11 +50,6 @@ Camera myCamera(posX, posY, posZ, upX, upY, upZ);
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
 
-// /*
-// camera
-// glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-// glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-// glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 // timing
 float deltaTime = 0.0f;    // 现在这一帧和上一帧的时差
@@ -293,17 +288,10 @@ int main() {
 
     // 激活着色器
     ourShader.use();
-
-    // 初始化camera class
-    // =================
-    // std::cout << "myCamera.pitch = " << myCamera.pitch << std::endl;
     // 矩阵定义
     // ==================
     keyboard_callback(window);
-    // /*
-
     glm::mat4 view = myCamera.getViewMatrix();
-
     ourShader.setMat4("view", view);
     glm::mat4 projection(1.0f);
     projection = glm::perspective(glm::radians(myCamera.fov),
@@ -313,7 +301,6 @@ int main() {
 
     // 渲染盒子
     glBindVertexArray(VAO);
-    // /*
     for (unsigned int i = 0; i < 10; i++) {
       glm::mat4 model(1.0f);
       model = glm::translate(model, cubePostions[i]);
@@ -323,7 +310,6 @@ int main() {
       ourShader.setMat4("model", model);
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
-    // */
 
     // 交换screen buffer
     glfwSwapBuffers(window);
@@ -345,7 +331,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 }
 
 
-// /*
+
 void processInput(GLFWwindow *window) {
   // 当用户按下esc键, 我们设置window窗口的windowShouldCloseni属性为True
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)

@@ -29,7 +29,7 @@ enum Camera_Movement {
 };
 
 
-// Default camera values
+// 相机初始默认值
 const float YAW = -90.0f;
 // 旋转欧拉角
 const float PITCH = 0.0f;
@@ -130,7 +130,6 @@ class Camera {
 
     cameraRight = glm::normalize(glm::cross(cameraFront, cameraUp));
     cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
-
   }
 };
 
