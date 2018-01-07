@@ -16,13 +16,17 @@
 // #ifndef CAMERA_H
 #define CAMERA_H
 
-// GLFW
-#include <GLFW/glfw3.h>
-
 // include GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+enum Camera_Movement {
+  FORWARD,
+  BACKWARD,
+  LEFT,
+  RIGHT
+};
 
 
 
@@ -61,27 +65,26 @@ class Camera {
     updateCameraVectors();
   }
 
-  void setLookAt() {     // 输入位置, 目标, 上向量 lookAt, 改变view,
-    View = glm::lookAt(cameraPos,
-    cameraPos + cameraFront,      // 保证观察目标正对
-    cameraUp);
-  }
   glm::mat4 getViewMatrix() {
     return glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
   }
 
-  void keyboard_move(GLFWwindow *window) {
+  void keyboard_move(Camera_Movement direction) {
     // 键盘控制移动
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    // FORWARD,
+    // BACKWARD,
+    // LEFT,
+    // RIGHT
+    if (direction == FORWARD)
       cameraPos += moveSpeed * cameraFront;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    if (direction == BACKWARD)
       cameraPos -= moveSpeed * cameraFront;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    if (direction == LEFT)
         cameraPos -= moveSpeed * glm::cross(cameraFront, cameraUp);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    if (direction == RIGHT)
         cameraPos += moveSpeed * glm::cross(cameraFront, cameraUp);
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-      cameraPos += moveSpeed * cameraUp;
+
+    updateCameraVectors();
   }
 
   void mouse_move(double xoffset, double yoffset) {
@@ -91,8 +94,6 @@ class Camera {
     yaw += xoffset;
     pitch += yoffset;
 
-    // pitch = (pitch > 89.0f) ? 89.0:pitch;
-    // pitch = (pitch < -89.0f) ? -89.0f:pitch;
     if (pitch > 89.0f) pitch = 89.0f;
     if (pitch < -89.0f) pitch =  -89.0f;
 
@@ -104,6 +105,8 @@ class Camera {
     if (fov >= 1.0f && fov <= 45.0f) fov -= yoffset;
     if (fov <= 1.0f) fov = 1.0f;
     if (fov >= 45.0f) fov = 45.0f;
+
+    updateCameraVectors();
   }
 
  private:

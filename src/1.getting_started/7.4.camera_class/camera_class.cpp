@@ -39,6 +39,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void keyboard_callback(GLFWwindow* window);
 
 // 初始化相机
 Camera myCamera;
@@ -297,7 +298,7 @@ int main() {
     // std::cout << "myCamera.pitch = " << myCamera.pitch << std::endl;
     // 矩阵定义
     // ==================
-    myCamera.keyboard_move(window);
+    keyboard_callback(window);
     // /*
 
     glm::mat4 view = myCamera.getViewMatrix();
@@ -373,4 +374,17 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
   myCamera.scroll_move(xoffset, yoffset);
 }
 
+void keyboard_callback(GLFWwindow* window) {
+  Camera_Movement direction;
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    direction = FORWARD;
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    direction = BACKWARD;
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    direction = LEFT;
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    direction = RIGHT;
+
+  myCamera.keyboard_move(direction);
+}
 // */
