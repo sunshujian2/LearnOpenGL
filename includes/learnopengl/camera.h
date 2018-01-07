@@ -95,6 +95,8 @@ class Camera {
     if (direction == RIGHT)
         cameraPos += velocity * cameraRight;
 
+    cameraPos.y = 0.0f;          //保持在地平线上, xz平面
+
     updateCameraVectors();
   }
 
