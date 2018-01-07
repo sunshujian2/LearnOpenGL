@@ -29,29 +29,34 @@ enum Camera_Movement {
 };
 
 
+// Default camera values
+const float YAW = -90.0f;
+// 旋转欧拉角
+const float PITCH = 0.0f;
+  // 相机速度
+const float SPEED = 0.2f;               // keyboard
+const float SENSITIVITY = 0.2f;         // mouse
+const float SCROLL = 1.5f;              // scroll
+const float ZOOM = 45.0f;               // fov
+
+
 
 class Camera {
  public:
-
   // 相机位置
   glm::vec3 cameraPos;
   glm::vec3 cameraFront;
   glm::vec3 cameraUp;
+  glm::vec3 cameraRight;
 
   // 旋转欧拉角
   float pitch;
   float yaw;
   // 相机速度
-  float moveSpeed = 0.2f;   // keyboard
-  float sightSpeed;         // mouse
-  float zoomSpeed;          // scroll
-  float fov = 45.0f;        // scroll value
-
-  // 光标坐标
-  // bool firstMouse = true;
-  // float lastX;
-  // float lastY;
-  const float sensitivity = 0.2f;
+  const float moveSpeed = SPEED;          // keyboard
+  const float mouseSpeed = SENSITIVITY;   // mouse
+  const float scrollSpeed = SCROLL;       // scroll
+  float fov = ZOOM;                       // scroll value
 
   // 相机观察矩阵
   glm::mat4 View;
@@ -59,7 +64,7 @@ class Camera {
   Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f),
          glm::vec3 front = glm::vec3(0.0f, 0.0f, -1.0f),
          glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
-         float p = 0.0f, float y = -90.0f) :
+         float p = PITCH, float y = YAW) :
       cameraPos(position), cameraFront(front), cameraUp(up),
       pitch(p), yaw(y) {
     updateCameraVectors();
@@ -71,26 +76,22 @@ class Camera {
 
   void keyboard_move(Camera_Movement direction) {
     // 键盘控制移动
-    // FORWARD,
-    // BACKWARD,
-    // LEFT,
-    // RIGHT
     if (direction == FORWARD)
       cameraPos += moveSpeed * cameraFront;
     if (direction == BACKWARD)
       cameraPos -= moveSpeed * cameraFront;
     if (direction == LEFT)
-        cameraPos -= moveSpeed * glm::cross(cameraFront, cameraUp);
+      cameraPos -= moveSpeed * cameraRight;
     if (direction == RIGHT)
-        cameraPos += moveSpeed * glm::cross(cameraFront, cameraUp);
+        cameraPos += moveSpeed * cameraRight;
 
     updateCameraVectors();
   }
 
   void mouse_move(double xoffset, double yoffset) {
     // 鼠标移动控制
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
+    xoffset *= mouseSpeed;
+    yoffset *= mouseSpeed;
     yaw += xoffset;
     pitch += yoffset;
 
@@ -102,7 +103,7 @@ class Camera {
 
 
   void scroll_move(double xoffset, double yoffset) {
-    if (fov >= 1.0f && fov <= 45.0f) fov -= yoffset;
+    if (fov >= 1.0f && fov <= 45.0f) fov -= yoffset * scrollSpeed;
     if (fov <= 1.0f) fov = 1.0f;
     if (fov >= 45.0f) fov = 45.0f;
 
@@ -116,6 +117,10 @@ class Camera {
     front.y = sin(glm::radians(pitch));
     front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     cameraFront = glm::normalize(front);
+
+    cameraRight = glm::normalize(glm::cross(cameraFront, cameraUp));
+    cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
+
   }
 };
 
