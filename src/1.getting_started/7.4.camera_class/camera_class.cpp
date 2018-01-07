@@ -42,7 +42,10 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void keyboard_callback(GLFWwindow* window);
 
 // 初始化相机
-Camera myCamera;
+float posX = 0.0f, posY = 0.0f, posZ = 9.0f;
+float upX = 0.0f, upY = 1.0f, upZ = 0.0f;
+
+Camera myCamera(posX, posY, posZ, upX, upY, upZ);
 
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
