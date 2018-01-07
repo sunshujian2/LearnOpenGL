@@ -11,6 +11,9 @@
 键盘控制移动
 鼠标移动控制
 滚轮控制缩放
+
+ex1: 变成一个真正的FPS摄像机（也就是说不能够随意飞行）；你只能够呆在xz平面
+ex2: 创建你自己的LookAt函数
 */
 
 // #ifndef CAMERA_H
@@ -80,6 +83,7 @@ class Camera {
   yaw(y) { }
 
   glm::mat4 getViewMatrix() {
+    // return myLookAt(cameraPos, cameraPos + cameraFront, cameraUp);
     return glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
   }
 
@@ -121,6 +125,40 @@ class Camera {
 
     updateCameraVectors();
   }
+
+
+  glm::mat4 myLookAt(glm::vec3 position, glm::vec3 target, glm::vec3 up) {
+    // glm::mat4 view;
+    // 1. Position = known
+    // 2. Calculate cameraDiretion
+    glm::vec3 zaxis = glm::normalize(position - target);
+    // 3. get positive right axis vector
+    glm::vec3 xaxis = glm::normalize(glm::cross(
+        glm::normalize(cameraUp),
+        zaxis));
+    // 4. Calculate camera up vector
+    glm::vec3 yaxis = glm::cross(zaxis, xaxis);
+
+    // Create translation and rotation matrix
+    glm::mat4 translation;
+    translation[3][0] = -position.x;
+    translation[3][1] = -position.y;
+    translation[3][2] = -position.z;
+
+    glm::mat4 rotation;
+    rotation[0][0] = xaxis.x;
+    rotation[1][0] = xaxis.y;
+    rotation[2][0] = xaxis.z;
+    rotation[0][1] = yaxis.x;
+    rotation[1][1] = yaxis.y;
+    rotation[2][1] = yaxis.z;
+    rotation[0][2] = zaxis.x;
+    rotation[1][2] = zaxis.y;
+    rotation[2][2] = zaxis.z;
+
+    return rotation * translation;
+  }
+
 
  private:
   void updateCameraVectors() {
