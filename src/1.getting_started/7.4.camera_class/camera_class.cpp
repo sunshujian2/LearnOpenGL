@@ -260,6 +260,7 @@ int main() {
   // 隐藏鼠标并捕捉, 光标停留在窗口中，除非失去焦点
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+  Camera myCamera;
   // 渲染loop
   // ==============================================================
   while (!glfwWindowShouldClose(window)) {
@@ -289,24 +290,25 @@ int main() {
 
     // 初始化camera class
     // =================
-    Camera myCamera;
     // std::cout << "myCamera.pitch = " << myCamera.pitch << std::endl;
     // 矩阵定义
     // ==================
-    
+    myCamera.keyboard_move(window);
     // /*
     // 摄像机位置
     // Look At
-    glm::mat4 view;
-    view = glm::lookAt(cameraPos,                    // 位置
-                       cameraPos + cameraFront,      // 目标
-                       cameraUp);                    // 上向量
+    myCamera.setLookAt();
+    
+    glm::mat4 view = myCamera.View;
+    // view = glm::lookAt(cameraPos,                    // 位置
+    //                    cameraPos + cameraFront,      // 目标
+    //                    cameraUp);                    // 上向量
     
     // */
     // glm::mat4 view = myCamera.View;
     ourShader.setMat4("view", view);
     glm::mat4 projection(1.0f);
-    projection = glm::perspective(glm::radians(fov),
+    projection = glm::perspective(glm::radians(myCamera.fov),
                                   (float)WIDTH/ (float)HEIGHT,
                                   0.1f, 100.0f);
     ourShader.setMat4("projection", projection);

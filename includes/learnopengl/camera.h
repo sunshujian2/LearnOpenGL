@@ -62,7 +62,7 @@ class Camera {
       pitch(pitch),
       yaw(yaw) {}
   */
-  /*
+
   void setLookAt() {     // 输入位置, 目标, 上向量 lookAt, 改变view,
     View = glm::lookAt(cameraPos,
     cameraPos + cameraFront,      // 保证观察目标正对
@@ -72,17 +72,17 @@ class Camera {
   void keyboard_move(GLFWwindow *window) {
     // 键盘控制移动
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-      cameraPos -= moveSpeed * cameraFront;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
       cameraPos += moveSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+      cameraPos -= moveSpeed * cameraFront;
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-      cameraPos -= moveSpeed * glm::across(cameraFront, cameraUp);
+        cameraPos -= moveSpeed * glm::cross(cameraFront, cameraUp);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-      cameraPos += moveSpeed * glm::across(cameraFront, cameraUp);
+        cameraPos += moveSpeed * glm::cross(cameraFront, cameraUp);
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
       cameraPos += moveSpeed * cameraUp;
   }
-
+  /*
   void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     // 鼠标移动控制
     if (firstMouse) {
