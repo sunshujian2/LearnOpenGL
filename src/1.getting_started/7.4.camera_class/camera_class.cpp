@@ -40,23 +40,26 @@ void processInput(GLFWwindow *window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
+// 初始化相机
+Camera myCamera;
+
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
 
 // /*
 // camera
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+// glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+// glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+// glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 // timing
 float deltaTime = 0.0f;    // 现在这一帧和上一帧的时差
 float lastFrame = 0.0f;
 
 bool firstMouse = true;                        // 鼠标是否被移动
-float pitch = 0.0f, yaw =  -90.0f;             // 偏转角
+// float pitch = 0.0f, yaw =  -90.0f;             // 偏转角
 float lastX = WIDTH / 2, lastY = HEIGHT / 2;   // 鼠标位置
-float fov = 45.0f;                     // 鼠标滚轮竖直滚动的大小
+// float fov = 45.0f;                     // 鼠标滚轮竖直滚动的大小
 // */
 
 // 实例化GLFW窗口
@@ -77,6 +80,7 @@ int main() {
     glfwTerminate();
     return -1;
   }
+
   // 设置当前的上下文
   glfwMakeContextCurrent(window);
   // 注册函数至适合的回调
@@ -260,7 +264,7 @@ int main() {
   // 隐藏鼠标并捕捉, 光标停留在窗口中，除非失去焦点
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-  Camera myCamera;
+
   // 渲染loop
   // ==============================================================
   while (!glfwWindowShouldClose(window)) {
@@ -295,17 +299,9 @@ int main() {
     // ==================
     myCamera.keyboard_move(window);
     // /*
-    // 摄像机位置
-    // Look At
-    myCamera.setLookAt();
-    
-    glm::mat4 view = myCamera.View;
-    // view = glm::lookAt(cameraPos,                    // 位置
-    //                    cameraPos + cameraFront,      // 目标
-    //                    cameraUp);                    // 上向量
-    
-    // */
-    // glm::mat4 view = myCamera.View;
+
+    glm::mat4 view = myCamera.getViewMatrix();
+
     ourShader.setMat4("view", view);
     glm::mat4 projection(1.0f);
     projection = glm::perspective(glm::radians(myCamera.fov),
@@ -354,66 +350,30 @@ void processInput(GLFWwindow *window) {
     glfwSetWindowShouldClose(window, true);
 
   // ...
-  float cameraSpeed = 1.5f * deltaTime;
-  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    cameraPos += cameraSpeed * cameraFront;
-  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    cameraPos -= cameraSpeed * cameraFront;
-  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    cameraPos -= glm::normalize(
-        glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    cameraPos += glm::normalize(
-        glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-    cameraPos += (3 * cameraSpeed) * cameraUp;
 }
+
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
   // ...
-
-  if (firstMouse) {      // firstMouse boo类型，在初次进入时为true
+  if (firstMouse) {
     lastX = xpos;
     lastY = ypos;
     firstMouse = false;
   }
-
+  
 
   float xoffset = xpos - lastX;
-  float yoffset = lastY - ypos;    // 相反, 因为y坐标从底部往顶部增大
-  lastX = xpos;
-  lastY = ypos;
-
-  float sensitivity = 0.05f;
-  xoffset *= sensitivity;
-  yoffset *= sensitivity;
-
-  yaw += xoffset;
-  pitch += yoffset;
-
-  // 摄像机限制
-  pitch = (pitch > 89.0f) ? 89.0f:pitch;
-  pitch = (pitch < -89.0f) ? -89.0f:pitch;
-
-  // 设置偏航角
-
-  // 4, 通过俯仰角和偏航角来计算得到真正的方向向量
-  glm::vec3 front;
-  front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-  front.y = sin(glm::radians(pitch));
-  front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-  // std::cout << "front.x = " << front.x << '\n'
-  //           << "front.y = " << front.y << '\n'
-  //           << "front.z = " << front.z << std::endl;
-  cameraFront = glm::normalize(front);
-
-  // 第四步为什么不放在主循环中?
-  // 鼠标没有移动前, cameraFront是不会改变的
+  float yoffset = lastY - ypos;
+  // std::cout << "xpos_dlt = " << xpos-400 << '\n'
+  //           << "ypos_dlt = " << ypos-300 << '\n'
+  //           << "-- ---------------- --\n"
+  //           << std::endl;
+  myCamera.mouse_move(xoffset, yoffset);
 }
+
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-  if (fov >= 1.0f && fov <= 45.0f) fov -= yoffset;
-  if (fov <= 1.0f) fov = 1.0f;
-  if (fov >= 45.0f) fov = 45.0f;
+  myCamera.scroll_move(xoffset, yoffset);
 }
+
 // */

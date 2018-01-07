@@ -35,13 +35,19 @@ class Camera {
   glm::vec3 cameraUp;
 
   // 旋转欧拉角
-  float pitch = -90.0f;
-  float yaw = 0.0f;
+  float pitch;
+  float yaw;
   // 相机速度
   float moveSpeed = 0.2f;   // keyboard
   float sightSpeed;         // mouse
   float zoomSpeed;          // scroll
   float fov = 45.0f;        // scroll value
+
+  // 光标坐标
+  // bool firstMouse = true;
+  // float lastX;
+  // float lastY;
+  const float sensitivity = 0.2f;
 
   // 相机观察矩阵
   glm::mat4 View;
@@ -49,24 +55,19 @@ class Camera {
   Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f),
          glm::vec3 front = glm::vec3(0.0f, 0.0f, -1.0f),
          glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
-         float p = -90.0f, float y = 0.0f) :
+         float p = 0.0f, float y = -90.0f) :
       cameraPos(position), cameraFront(front), cameraUp(up),
-      pitch(p), yaw(y) { }
-
-  /*
-  Camera(glm::vec3 position, glm::vec3 front, glm::vec3 up,
-         float pitch, float yaw) :
-      postion(glm::vec3(0.0f, 0.0f, 3.0f),
-      front(glm::vec3(0.0f, 0.0f, -1.0f)),
-      up(glm::vec3(0.0f, 1.0f, 0.0f)),
-      pitch(pitch),
-      yaw(yaw) {}
-  */
+      pitch(p), yaw(y) {
+    updateCameraVectors();
+  }
 
   void setLookAt() {     // 输入位置, 目标, 上向量 lookAt, 改变view,
     View = glm::lookAt(cameraPos,
     cameraPos + cameraFront,      // 保证观察目标正对
     cameraUp);
+  }
+  glm::mat4 getViewMatrix() {
+    return glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
   }
 
   void keyboard_move(GLFWwindow *window) {
@@ -82,21 +83,37 @@ class Camera {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
       cameraPos += moveSpeed * cameraUp;
   }
-  /*
-  void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-    // 鼠标移动控制
-    if (firstMouse) {
-      lastX = xpos;
-      lastY = ypos;
-      firstMoush = false;
-    }
 
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos;
-    lastX = xpos;
-    lastY = ypos;
+  void mouse_move(double xoffset, double yoffset) {
+    // 鼠标移动控制
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+    yaw += xoffset;
+    pitch += yoffset;
+
+    // pitch = (pitch > 89.0f) ? 89.0:pitch;
+    // pitch = (pitch < -89.0f) ? -89.0f:pitch;
+    if (pitch > 89.0f) pitch = 89.0f;
+    if (pitch < -89.0f) pitch =  -89.0f;
+
+    updateCameraVectors();
   }
-  */
+
+
+  void scroll_move(double xoffset, double yoffset) {
+    if (fov >= 1.0f && fov <= 45.0f) fov -= yoffset;
+    if (fov <= 1.0f) fov = 1.0f;
+    if (fov >= 45.0f) fov = 45.0f;
+  }
+
+ private:
+  void updateCameraVectors() {
+    glm::vec3 front;
+    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(front);
+  }
 };
 
 
